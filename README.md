@@ -1,4 +1,7 @@
 # tahoma_extended
+
+[![hacs_badge](https://img.shields.io/badge/HACS-Custom-orange.svg)](https://github.com/custom-components/hacs)
+
 Extend the home assistant tahoma integration with new features not yet published to HA.
 
 Currently this extension adds support for the following elements:
