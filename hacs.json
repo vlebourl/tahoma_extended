@@ -1,0 +1,5 @@
+{
+  "name": "Tahoma Extended",
+  "render_readme": true,
+  "domains": [ "climate", "lock", "sensor", "switch"]
+}
