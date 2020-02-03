@@ -1,0 +1,8 @@
+{
+  "domain": "tahoma_extended",
+  "name": "Tahoma_Extended",
+  "documentation": "https://github.com/vlebourl/tahoma_extended",
+  "requirements": ["tahoma-api==0.0.16"],
+  "dependencies": [],
+  "codeowners": ["@vlebourl"]
+}
