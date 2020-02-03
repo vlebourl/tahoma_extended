@@ -4,11 +4,20 @@
 
 Extend the home assistant tahoma integration with new features not yet published to HA.
 
+Add the following to your `configuration.yaml`:
+
+```
+tahoma_extended:
+  username: 'tahoma login'
+  password: 'tahoma password'
+```
+
+
 Currently this extension adds support for the following elements:
-- Somfy's smartlock through the Tahoma box
-- Atlantic IO pilot wire interface (Somfy ref: 1822452)
-- Somfy's smart thermostat and related sensors.
-- Somfy's RTS light switch.
+- Somfy's smartlock through the Tahoma box (`opendoors:OpenDoorsSmartLockComponent`)
+- Atlantic IO pilot wire interface (Somfy ref: 1822452, `io:AtlanticElectricalHeaterIOComponent`)
+- Somfy's smart thermostat and related sensors (`somfythermostat:SomfyThermostatThermostatComponent`, `somfythermostat:SomfyThermostatTemperatureSensor`, `somfythermostat:SomfyThermostatHumiditySensor`). 
+- Somfy's RTS light switch (`rts:LightRTSComponent`).
 
 Climate integration is a bit of hack. To use it, you need a controller such as the Atlantic IO controller or the Smart 
 Thermostat, and a temperature sensor. The temperature sensor can be any sensor added to HA.
@@ -16,10 +25,10 @@ Add the following to your `configuration.yaml`:
 
 ```
 climate:
-    platform: tahoma_extended
-    sensors:
-    - name: Name of the climate device in the Tahoma Box
-      entity_id: sensor.associated_temperature_sensor
+  platform: tahoma_extended
+  sensors:
+  - name: Name of the climate device in the Tahoma Box
+    entity_id: sensor.associated_temperature_sensor
 ```
 
 The name of the device _MUST_ be the same as in the Tahoma Box. 
@@ -32,8 +41,8 @@ configuration section is:
 
 ```
 climate:
-    platform: tahoma_extended
-    sensors:
-    - name: "Radiateur Parents"
-      entity_id: sensor.netatmo_parents_temperature
+  platform: tahoma_extended
+  sensors:
+  - name: "Radiateur Parents"
+    entity_id: sensor.netatmo_parents_temperature
 ```
