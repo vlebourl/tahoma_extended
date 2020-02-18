@@ -2,3 +2,5 @@
 /venv/**
 /.idea
 /.idea/**
+/custom_components/tahoma_extended/__pycache__/
+/custom_components/tahoma_extended/__pycache__/**
