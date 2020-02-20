@@ -35,6 +35,7 @@ TAHOMA_COMPONENTS = ["sensor", "switch", "lock"]
 
 TAHOMA_TYPES = {
     "io:SomfySmokeIOSystemSensor": "sensor",
+    "io:LightIOSystemSensor": "sensor",
     "io:AtlanticElectricalHeaterIOComponent": "climate",
     "rts:LightRTSComponent": "switch",
     "somfythermostat:SomfyThermostatTemperatureSensor": "sensor",
