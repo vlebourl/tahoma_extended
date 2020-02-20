@@ -31,14 +31,6 @@ class TahomaSensor(TahomaDevice, Entity):
         self.current_value = None
         self._available = False
         super().__init__(tahoma_device, controller)
-        if self.tahoma_device.type == "io:LightIOSystemSensor":
-            import json
-            parsed = json.loads(self.tahoma_device.active_states)
-            _LOGGER.warning("iio:LightIOSystemSensor:\n" + json.dumps(parsed, indent=4, sort_keys=True))
-        if self.tahoma_device.type == "io:SomfySmokeIOSystemSensor":
-            import json
-            parsed = json.loads(self.tahoma_device.active_states)
-            _LOGGER.warning("io:SomfySmokeIOSystemSensor:\n"+json.dumps(parsed, indent=4, sort_keys=True))
 
     @property
     def state(self):
