@@ -34,14 +34,45 @@ CONFIG_SCHEMA = vol.Schema(
 TAHOMA_COMPONENTS = ["binary_sensor", "lock", "sensor", "switch"]
 
 TAHOMA_TYPES = {
-    "io:SomfySmokeIOSystemSensor": "sensor",
-    "io:LightIOSystemSensor": "sensor",
+    "io:SomfySmokeIOSystemSensor": "smoke",
     "io:AtlanticElectricalHeaterIOComponent": "climate",
     "rts:LightRTSComponent": "switch",
     "somfythermostat:SomfyThermostatTemperatureSensor": "sensor",
     "somfythermostat:SomfyThermostatHumiditySensor": "sensor",
     "somfythermostat:SomfyThermostatThermostatComponent": "climate",
     "opendoors:OpenDoorsSmartLockComponent": "lock"
+}
+OFFICIAL_TAHOMA_TYPES = {
+    "io:AwningValanceIOComponent": "cover",
+    "io:ExteriorVenetianBlindIOComponent": "cover",
+    "io:DiscreteGarageOpenerIOComponent": "cover",
+    "io:HorizontalAwningIOComponent": "cover",
+    "io:GarageOpenerIOComponent": "cover",
+    "io:LightIOSystemSensor": "sensor",
+    "io:OnOffIOComponent": "switch",
+    "io:OnOffLightIOComponent": "switch",
+    "io:RollerShutterGenericIOComponent": "cover",
+    "io:RollerShutterUnoIOComponent": "cover",
+    "io:RollerShutterVeluxIOComponent": "cover",
+    "io:RollerShutterWithLowSpeedManagementIOComponent": "cover",
+    "io:SomfyBasicContactIOSystemSensor": "sensor",
+    "io:SomfyContactIOSystemSensor": "sensor",
+    "io:TemperatureIOSystemSensor": "sensor",
+    "io:VerticalExteriorAwningIOComponent": "cover",
+    "io:VerticalInteriorBlindVeluxIOComponent": "cover",
+    "io:WindowOpenerVeluxIOComponent": "cover",
+    # "opendoors:OpenDoorsSmartLockComponent": "lock",
+    "rtds:RTDSContactSensor": "sensor",
+    "rtds:RTDSMotionSensor": "sensor",
+    "rtds:RTDSSmokeSensor": "smoke",
+    "rts:BlindRTSComponent": "cover",
+    "rts:CurtainRTSComponent": "cover",
+    "rts:DualCurtainRTSComponent": "cover",
+    "rts:ExteriorVenetianBlindRTSComponent": "cover",
+    "rts:GarageDoor4TRTSComponent": "switch",
+    "rts:RollerShutterRTSComponent": "cover",
+    "rts:OnOffRTSComponent": "switch",
+    "rts:VenetianBlindRTSComponent": "cover",
 }
 
 
@@ -71,15 +102,22 @@ def setup(hass, config):
     for device in devices:
         _device = api.get_device(device)
         if all(ext not in _device.type for ext in exclude):
-            device_type = map_tahoma_device(_device)
-            if device_type is None:
-                _LOGGER.warning(
-                    "Unsupported type %s for Tahoma device %s",
+            if is_officially_supported(_device):
+                _LOGGER.info(
+                    "Type %s for Tahoma device %s is officially supported",
                     _device.type,
                     _device.label,
                 )
-                continue
-            hass.data[DOMAIN]["devices"][device_type].append(_device)
+            else:
+                device_type = map_tahoma_device(_device)
+                if device_type is None:
+                    _LOGGER.warning(
+                        "Unsupported type %s for Tahoma device %s",
+                        _device.type,
+                        _device.label,
+                    )
+                    continue
+                hass.data[DOMAIN]["devices"][device_type].append(_device)
 
     for scene in scenes:
         hass.data[DOMAIN]["scenes"].append(scene)
@@ -88,6 +126,11 @@ def setup(hass, config):
         discovery.load_platform(hass, component, DOMAIN, {}, config)
 
     return True
+
+
+def is_officially_supported(tahoma_device):
+    """Report whether the component is officially supported"""
+    return not OFFICIAL_TAHOMA_TYPES.get(tahoma_device.type) is None
 
 
 def map_tahoma_device(tahoma_device):
