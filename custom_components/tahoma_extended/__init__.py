@@ -39,7 +39,6 @@ TAHOMA_TYPES = {
     "somfythermostat:SomfyThermostatTemperatureSensor": "sensor",
     "somfythermostat:SomfyThermostatHumiditySensor": "sensor",
     "somfythermostat:SomfyThermostatThermostatComponent": "climate",
-    "opendoors:OpenDoorsSmartLockComponent": "lock"
 }
 OFFICIAL_TAHOMA_TYPES = {
     "io:AwningValanceIOComponent": "cover",
@@ -60,7 +59,7 @@ OFFICIAL_TAHOMA_TYPES = {
     "io:VerticalExteriorAwningIOComponent": "cover",
     "io:VerticalInteriorBlindVeluxIOComponent": "cover",
     "io:WindowOpenerVeluxIOComponent": "cover",
-    # "opendoors:OpenDoorsSmartLockComponent": "lock",
+    "opendoors:OpenDoorsSmartLockComponent": "lock",
     "rtds:RTDSContactSensor": "sensor",
     "rtds:RTDSMotionSensor": "sensor",
     "rtds:RTDSSmokeSensor": "smoke",
