@@ -34,6 +34,7 @@ CONFIG_SCHEMA = vol.Schema(
 TAHOMA_COMPONENTS = ["sensor", "switch", "lock"]
 
 TAHOMA_TYPES = {
+    "io:LightIOSystemSensor": "sensor",
     "io:AtlanticElectricalHeaterIOComponent": "climate",
     "rts:LightRTSComponent": "switch",
     "somfythermostat:SomfyThermostatTemperatureSensor": "sensor",
