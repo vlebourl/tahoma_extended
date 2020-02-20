@@ -103,7 +103,7 @@ def setup(hass, config):
         _device = api.get_device(device)
         if all(ext not in _device.type for ext in exclude):
             if is_officially_supported(_device):
-                _LOGGER.debug(
+                _LOGGER.info(
                     "Type %s for Tahoma device %s is officially supported",
                     _device.type,
                     _device.label,
