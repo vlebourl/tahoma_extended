@@ -131,7 +131,7 @@ def setup(hass, config):
 
 def is_officially_supported(tahoma_device):
     """Report whether the component is officially supported"""
-    return OFFICIAL_TAHOMA_TYPES.get(tahoma_device.type) is None
+    return not OFFICIAL_TAHOMA_TYPES.get(tahoma_device.type) is None
 
 
 def map_tahoma_device(tahoma_device):
