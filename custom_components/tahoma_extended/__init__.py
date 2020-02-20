@@ -108,7 +108,6 @@ def setup(hass, config):
                     _device.type,
                     _device.label,
                 )
-                continue
             else:
                 device_type = map_tahoma_device(_device)
                 if device_type is None:
