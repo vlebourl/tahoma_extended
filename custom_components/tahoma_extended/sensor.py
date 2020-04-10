@@ -54,6 +54,8 @@ class TahomaSensor(TahomaDevice, Entity):
             return '%'
         if self.tahoma_device.type == "Humidity Sensor":
             return "%"
+        if self.tahoma_device.type == "io:SomfySmokeIOSystemSensor":
+            return None
         if self.tahoma_device.type == "rtds:RTDSContactSensor":
             return None
         if self.tahoma_device.type == "rtds:RTDSMotionSensor":

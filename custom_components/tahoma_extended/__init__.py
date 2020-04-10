@@ -31,9 +31,10 @@ CONFIG_SCHEMA = vol.Schema(
     extra=vol.ALLOW_EXTRA,
 )
 
-TAHOMA_COMPONENTS = ["sensor", "switch", "lock"]
+TAHOMA_COMPONENTS = ["binary_sensor", "lock", "sensor", "switch"]
 
 TAHOMA_TYPES = {
+    "io:SomfySmokeIOSystemSensor": "smoke",
     "io:AtlanticElectricalHeaterIOComponent": "climate",
     "rts:LightRTSComponent": "switch",
     "somfythermostat:SomfyThermostatTemperatureSensor": "sensor",
@@ -60,6 +61,38 @@ OFFICIAL_TAHOMA_TYPES = {
     "io:VerticalInteriorBlindVeluxIOComponent": "cover",
     "io:WindowOpenerVeluxIOComponent": "cover",
     "opendoors:OpenDoorsSmartLockComponent": "lock",
+    "rtds:RTDSContactSensor": "sensor",
+    "rtds:RTDSMotionSensor": "sensor",
+    "rtds:RTDSSmokeSensor": "smoke",
+    "rts:BlindRTSComponent": "cover",
+    "rts:CurtainRTSComponent": "cover",
+    "rts:DualCurtainRTSComponent": "cover",
+    "rts:ExteriorVenetianBlindRTSComponent": "cover",
+    "rts:GarageDoor4TRTSComponent": "switch",
+    "rts:RollerShutterRTSComponent": "cover",
+    "rts:OnOffRTSComponent": "switch",
+    "rts:VenetianBlindRTSComponent": "cover",
+}
+OFFICIAL_TAHOMA_TYPES = {
+    "io:AwningValanceIOComponent": "cover",
+    "io:ExteriorVenetianBlindIOComponent": "cover",
+    "io:DiscreteGarageOpenerIOComponent": "cover",
+    "io:HorizontalAwningIOComponent": "cover",
+    "io:GarageOpenerIOComponent": "cover",
+    "io:LightIOSystemSensor": "sensor",
+    "io:OnOffIOComponent": "switch",
+    "io:OnOffLightIOComponent": "switch",
+    "io:RollerShutterGenericIOComponent": "cover",
+    "io:RollerShutterUnoIOComponent": "cover",
+    "io:RollerShutterVeluxIOComponent": "cover",
+    "io:RollerShutterWithLowSpeedManagementIOComponent": "cover",
+    "io:SomfyBasicContactIOSystemSensor": "sensor",
+    "io:SomfyContactIOSystemSensor": "sensor",
+    "io:TemperatureIOSystemSensor": "sensor",
+    "io:VerticalExteriorAwningIOComponent": "cover",
+    "io:VerticalInteriorBlindVeluxIOComponent": "cover",
+    "io:WindowOpenerVeluxIOComponent": "cover",
+    # "opendoors:OpenDoorsSmartLockComponent": "lock",
     "rtds:RTDSContactSensor": "sensor",
     "rtds:RTDSMotionSensor": "sensor",
     "rtds:RTDSSmokeSensor": "smoke",
