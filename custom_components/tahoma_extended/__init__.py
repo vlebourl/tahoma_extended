@@ -31,7 +31,7 @@ CONFIG_SCHEMA = vol.Schema(
     extra=vol.ALLOW_EXTRA,
 )
 
-TAHOMA_COMPONENTS = ["binary_sensor", "lock", "sensor", "switch"]
+TAHOMA_COMPONENTS = ["binary_sensor", "sensor", "switch"]
 
 TAHOMA_TYPES = {
     "io:SomfySmokeIOSystemSensor": "smoke",
