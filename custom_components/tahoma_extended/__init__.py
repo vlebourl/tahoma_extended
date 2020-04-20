@@ -31,7 +31,7 @@ CONFIG_SCHEMA = vol.Schema(
     extra=vol.ALLOW_EXTRA,
 )
 
-TAHOMA_COMPONENTS = ["binary_sensor", "sensor", "switch"]
+TAHOMA_COMPONENTS = ["binary_sensor", "sensor", "switch", "light"]
 
 TAHOMA_TYPES = {
     "io:SomfySmokeIOSystemSensor": "smoke",
@@ -40,6 +40,7 @@ TAHOMA_TYPES = {
     "somfythermostat:SomfyThermostatTemperatureSensor": "sensor",
     "somfythermostat:SomfyThermostatHumiditySensor": "sensor",
     "somfythermostat:SomfyThermostatThermostatComponent": "climate",
+    "io:DimmableLightIOComponent": "light",
 }
 OFFICIAL_TAHOMA_TYPES = {
     "io:AwningValanceIOComponent": "cover",
