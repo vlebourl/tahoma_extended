@@ -235,18 +235,15 @@ class TahomaThermostat(TahomaDevice, ClimateDevice):
     @property
     def preset_modes(self):
         """Return a list of available preset modes."""
-        preset_modes = []
+        preset_modes = [PRESET_NONE]
+        if self._anti_freeze_temp:
+            preset_modes.append(PRESET_ANTI_FREEZE)
         if self._away_temp:
             preset_modes.append(PRESET_AWAY)
         if self._eco_temp:
             preset_modes.append(PRESET_ECO)
         if self._comfort_temp:
             preset_modes.append(PRESET_COMFORT)
-        if self._anti_freeze_temp:
-            preset_modes.append(PRESET_ANTI_FREEZE)
-        if not preset_modes:
-            return None
-        preset_modes.append(PRESET_NONE)
         return preset_modes
 
     @property
