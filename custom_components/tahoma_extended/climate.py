@@ -147,17 +147,17 @@ class TahomaThermostat(TahomaDevice, ClimateDevice):
         self._comfort_temp = comfort_temp
         self._anti_freeze_temp = anti_freeze_temp
         if self._type == "thermostat":
-            if away_temp is None:
+            if self._away_temp is None:
                 self._somfy_modes = self._somfy_modes | SUPPORT_AWAY_TEMP
                 self._away_temp = float(
                     self.tahoma_device.active_states["somfythermostat:AwayModeTargetTemperatureState"])
-            if eco_temp is None:
+            if self._eco_temp is None:
                 self._somfy_modes = self._somfy_modes | SUPPORT_ECO_TEMP
                 self._eco_temp = self.tahoma_device.active_states["somfythermostat:SleepingModeTargetTemperatureState"]
-            if comfort_temp is None:
+            if self._comfort_temp is None:
                 self._somfy_modes = self._somfy_modes | SUPPORT_COMFORT_TEMP
                 self._comfort_temp = self.tahoma_device.active_states["somfythermostat:AtHomeTargetTemperatureState"]
-            if anti_freeze_temp is None:
+            if self._anti_freeze_temp is None:
                 self._somfy_modes = self._somfy_modes | SUPPORT_ANTI_FREEZE_TEMP
                 self._anti_freeze_temp = \
                     self.tahoma_device.active_states["somfythermostat:FreezeModeTargetTemperatureState"]
