@@ -2,12 +2,16 @@
 import logging
 from datetime import timedelta
 
+try:
+    from homeassistant.components.light import LightEntity
+except ImportError:
+    from homeassistant.components.light import Light as LightEntity
+
 from homeassistant.components.light import (
     ATTR_BRIGHTNESS,
     ATTR_EFFECT,
     SUPPORT_BRIGHTNESS,
     SUPPORT_EFFECT,
-    Light,
 )
 
 from homeassistant.const import STATE_OFF, STATE_ON
@@ -32,8 +36,7 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
     async_add_entities(devices, True)
 
 
-
-class TahomaLight(TahomaDevice, Light):
+class TahomaLight(TahomaDevice, LightEntity):
     """Representation of a Tahome light"""
 
     def __init__(
