@@ -5,7 +5,12 @@ import logging
 import voluptuous as vol
 
 import homeassistant.helpers.config_validation as cv
-from homeassistant.components.climate import ClimateDevice, PLATFORM_SCHEMA
+from homeassistant.components.climate import PLATFORM_SCHEMA
+
+try:
+    from homeassistant.components.climate import ClimateEntity
+except ImportError:
+    from homeassistant.components.climate import ClimateDevice as ClimateEntity
 
 from homeassistant.components.climate.const import (
     HVAC_MODE_HEAT,
@@ -105,7 +110,7 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
     async_add_entities(devices, True)
 
 
-class TahomaThermostat(TahomaDevice, ClimateDevice):
+class TahomaThermostat(TahomaDevice, ClimateEntity):
     """Representation of a Tahoma thermostat."""
 
     def __init__(
