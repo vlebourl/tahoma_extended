@@ -60,9 +60,9 @@ f = open('devices.txt', 'w')
 sys.stdout = f
 
 print("Input login: ")
-userName=input() #"vlebourl@gmail.com"
+userName=input()
 print("Input password: ")
-userPassword=input() #"M4boC_HN$BqctS,i"
+userPassword=input()
 
 api=tahoma_api.TahomaApi(userName=userName,userPassword=userPassword)
 
