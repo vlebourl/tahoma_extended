@@ -46,3 +46,29 @@ climate:
   - name: "Radiateur Parents"
     entity_id: sensor.netatmo_parents_temperature
 ```
+
+### Contributing
+
+To contribute, run the following python script and PM me on the [Home Assistant Community forum](https://community.home-assistant.io/u/vlebourl) with the output written in `devices.txt` and details on the device you want to be added.
+
+```
+import sys
+import tahoma_api
+
+orig_stdout = sys.stdout
+f = open('devices.txt', 'w')
+sys.stdout = f
+
+print("Input login: ")
+userName=input() #"vlebourl@gmail.com"
+print("Input password: ")
+userPassword=input() #"M4boC_HN$BqctS,i"
+
+api=tahoma_api.TahomaApi(userName=userName,userPassword=userPassword)
+
+api.login()
+api.get_setup()
+
+sys.stdout = orig_stdout
+f.close()
+```
