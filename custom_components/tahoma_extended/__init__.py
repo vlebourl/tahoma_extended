@@ -3,7 +3,7 @@ from collections import defaultdict
 import logging
 
 from requests.exceptions import RequestException
-from .pyhoma.pyhoma import Action, PyHoma
+from .pyhoma import Action, PyHoma
 import voluptuous as vol
 
 from homeassistant.const import CONF_EXCLUDE, CONF_PASSWORD, CONF_USERNAME
