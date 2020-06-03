@@ -184,11 +184,10 @@ class TahomaThermostat(TahomaDevice, ClimateEntity):
 
     def update(self):
         """Update method."""
-        from time import sleep
         self.controller.get_states([self.tahoma_device])
         sensor_state = self.hass.states.get(self.sensor_entity_id)
         if sensor_state and sensor_state.state != STATE_UNKNOWN:
-            self._async_update_temp(sensor_state)
+            self.update_temp(sensor_state)
         if self._type == "io":
             state = self.tahoma_device.active_states["io:TargetHeatingLevelState"]
             if state == "off":
@@ -268,6 +267,15 @@ class TahomaThermostat(TahomaDevice, ClimateEntity):
         """Return the sensor temperature."""
         return self._cur_temp
 
+    async def _async_sensor_changed(self, entity_id, old_state, new_state):
+        """Handle temperature changes."""
+        if new_state is None:
+            return
+
+        self.update_temp(new_state)
+        self.control_heating()
+        self.schedule_update_ha_state()
+
     async def async_added_to_hass(self):
         await super().async_added_to_hass()
 
@@ -280,51 +288,41 @@ class TahomaThermostat(TahomaDevice, ClimateEntity):
             """Init on startup."""
             sensor_state = self.hass.states.get(self.sensor_entity_id)
             if sensor_state and sensor_state.state != STATE_UNKNOWN:
-                self._async_update_temp(sensor_state)
+                self.update_temp(sensor_state)
 
         self.hass.bus.async_listen_once(EVENT_HOMEASSISTANT_START, _async_startup)
 
-    async def _async_sensor_changed(self, entity_id, old_state, new_state):
-        """Handle temperature changes."""
-        if new_state is None:
-            return
-
-        self._async_update_temp(new_state)
-        await self._async_control_heating()
-        await self.async_update_ha_state()
-
     @callback
-    def _async_update_temp(self, state):
+    def update_temp(self, state):
         """Update thermostat with latest state from sensor."""
         try:
             self._cur_temp = float(state.state)
         except ValueError as ex:
             _LOGGER.error("Unable to update from sensor: %s", ex)
 
-    async def _async_control_heating(self):
+    def control_heating(self):
         """Check if we need to turn heating on or off."""
-        async with self._temp_lock:
-            if not self._active and None not in (self._cur_temp, self._target_temp):
-                self._active = True
-                _LOGGER.info(
-                    "Obtained current and target temperature. "
-                    "Thermostat active. %s, %s",
-                    self._cur_temp,
-                    self._target_temp,
-                )
+        if not self._active and None not in (self._cur_temp, self._target_temp):
+            self._active = True
+            _LOGGER.info(
+                "Obtained current and target temperature. "
+                "Thermostat active. %s, %s",
+                self._cur_temp,
+                self._target_temp,
+            )
 
-            if not self._active:
-                return
+        if not self._active:
+            return
 
-            too_cold = self._target_temp - self._cur_temp >= self._cold_tolerance
-            too_hot = self._cur_temp - self._target_temp >= self._hot_tolerance
+        too_cold = self._target_temp - self._cur_temp >= self._cold_tolerance
+        too_hot = self._cur_temp - self._target_temp >= self._hot_tolerance
 
-            if too_hot:
-                _LOGGER.info("Turning off heater %s", self.name)
-                await self._async_heater_turn_off()
-            if too_cold:
-                _LOGGER.info("Turning on heater %s", self.name)
-                await self._async_heater_turn_on()
+        if too_hot:
+            _LOGGER.info("Turning off heater %s", self.name)
+            self.heater_turn_off()
+        if too_cold:
+            _LOGGER.info("Turning on heater %s", self.name)
+            self.heater_turn_on()
 
     @property
     def _is_device_active(self):
@@ -338,61 +336,54 @@ class TahomaThermostat(TahomaDevice, ClimateEntity):
         if target_temperature < 16:
             target_temperature = 16
         if self.tahoma_device.active_states['core:DerogatedTargetTemperatureState'] != target_temperature:
-            from time import sleep
             self.apply_action([["setModeTemperature", "manualMode", target_temperature],
                                ["setDerogation", target_temperature, "further_notice"],
                                ["refreshState"]])
-            sleep(20)
+            from time import sleep
+            sleep(5)
 
-    async def _async_heater_turn_on(self):
+    def heater_turn_on(self):
         """Turn heater toggleable device on."""
         if self._type == "io":
             self.apply_action([["setHeatingLevel", "comfort"]])
         elif self._type == "thermostat":
             self._apply_action(self.target_temperature)
         self._current_hvac_mode = CURRENT_HVAC_HEAT
-        await self.async_update_ha_state()
-        self._update_caller = "_async_heater_turn_on"
-        self.update()
+        self.schedule_update_ha_state()
 
-    async def _async_heater_turn_off(self):
+    def heater_turn_off(self):
         """Turn heater toggleable device off."""
         if self._type == "io":
             self.apply_action([["setHeatingLevel", "off"]])
         elif self._type == "thermostat":
             self._apply_action(self.target_temperature)
         self._current_hvac_mode = CURRENT_HVAC_IDLE
-        await self.async_update_ha_state()
-        self._update_caller = "_async_heater_turn_off"
-        self.update()
+        self.schedule_update_ha_state()
 
-    async def async_set_hvac_mode(self, hvac_mode):
+    def set_hvac_mode(self, hvac_mode):
         """Set hvac mode."""
         if hvac_mode == HVAC_MODE_HEAT:
             self._hvac_mode = HVAC_MODE_HEAT
-            await self._async_control_heating()
+            self.control_heating()
         elif hvac_mode == HVAC_MODE_OFF:
             self._hvac_mode = HVAC_MODE_OFF
             if self._is_device_active:
-                await self._async_heater_turn_off()
+                self.heater_turn_off()
         else:
             _LOGGER.error("Unrecognized hvac mode: %s", hvac_mode)
             return
         # Ensure we update the current operation after changing the mode
         self.schedule_update_ha_state()
-        self._update_caller = "async_set_hvac_mode"
-        self.update()
 
-    async def async_set_temperature(self, **kwargs):
+    def set_temperature(self, **kwargs):
         """Set new target temperature."""
         temperature = kwargs.get(ATTR_TEMPERATURE)
         if temperature is None:
             return
         self._target_temp = temperature
-        await self._async_control_heating()
-        # self.update()
+        self.control_heating()
 
-    async def async_set_preset_mode(self, preset_mode: str) -> None:
+    def set_preset_mode(self, preset_mode: str) -> None:
         """Set new preset mode.
 
         This method must be run in the event loop and returns a coroutine.
@@ -406,17 +397,17 @@ class TahomaThermostat(TahomaDevice, ClimateEntity):
             self._preset_mode = PRESET_AWAY
             self._saved_target_temp = self._target_temp
             self._target_temp = self._away_temp
-            await self._async_control_heating()
+            self.control_heating()
         elif preset_mode == PRESET_ECO and not self._preset_mode == PRESET_ECO:
             self._preset_mode = PRESET_ECO
             self._saved_target_temp = self._target_temp
             self._target_temp = self._eco_temp
-            await self._async_control_heating()
+            self.control_heating()
         elif preset_mode == PRESET_COMFORT and not self._preset_mode == PRESET_COMFORT:
             self._preset_mode = PRESET_COMFORT
             self._saved_target_temp = self._target_temp
             self._target_temp = self._comfort_temp
-            await self._async_control_heating()
+            self.control_heating()
         elif (
                 preset_mode == PRESET_ANTI_FREEZE
                 and not self._preset_mode == PRESET_ANTI_FREEZE
@@ -424,14 +415,12 @@ class TahomaThermostat(TahomaDevice, ClimateEntity):
             self._preset_mode = PRESET_ANTI_FREEZE
             self._saved_target_temp = self._target_temp
             self._target_temp = self._anti_freeze_temp
-            await self._async_control_heating()
+            self.control_heating()
         elif preset_mode == PRESET_NONE and not self._preset_mode == PRESET_NONE:
             self._preset_mode = PRESET_NONE
             self._target_temp = self._saved_target_temp
-            await self._async_control_heating()
-        await self.async_update_ha_state()
-        self._update_caller = "async_set_preset_mode"
-        self.update()
+            self.control_heating()
+        self.schedule_update_ha_state()
 
     @property
     def device_state_attributes(self):
