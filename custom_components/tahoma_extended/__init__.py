@@ -3,7 +3,7 @@ from collections import defaultdict
 import logging
 
 from requests.exceptions import RequestException
-from tahoma_api import Action, TahomaApi
+from .pyhoma.pyhoma import Action, PyHoma
 import voluptuous as vol
 
 from homeassistant.const import CONF_EXCLUDE, CONF_PASSWORD, CONF_USERNAME
@@ -73,38 +73,6 @@ OFFICIAL_TAHOMA_TYPES = {
     "rts:OnOffRTSComponent": "switch",
     "rts:VenetianBlindRTSComponent": "cover",
 }
-OFFICIAL_TAHOMA_TYPES = {
-    "io:AwningValanceIOComponent": "cover",
-    "io:ExteriorVenetianBlindIOComponent": "cover",
-    "io:DiscreteGarageOpenerIOComponent": "cover",
-    "io:HorizontalAwningIOComponent": "cover",
-    "io:GarageOpenerIOComponent": "cover",
-    "io:LightIOSystemSensor": "sensor",
-    "io:OnOffIOComponent": "switch",
-    "io:OnOffLightIOComponent": "switch",
-    "io:RollerShutterGenericIOComponent": "cover",
-    "io:RollerShutterUnoIOComponent": "cover",
-    "io:RollerShutterVeluxIOComponent": "cover",
-    "io:RollerShutterWithLowSpeedManagementIOComponent": "cover",
-    "io:SomfyBasicContactIOSystemSensor": "sensor",
-    "io:SomfyContactIOSystemSensor": "sensor",
-    "io:TemperatureIOSystemSensor": "sensor",
-    "io:VerticalExteriorAwningIOComponent": "cover",
-    "io:VerticalInteriorBlindVeluxIOComponent": "cover",
-    "io:WindowOpenerVeluxIOComponent": "cover",
-    # "opendoors:OpenDoorsSmartLockComponent": "lock",
-    "rtds:RTDSContactSensor": "sensor",
-    "rtds:RTDSMotionSensor": "sensor",
-    "rtds:RTDSSmokeSensor": "smoke",
-    "rts:BlindRTSComponent": "cover",
-    "rts:CurtainRTSComponent": "cover",
-    "rts:DualCurtainRTSComponent": "cover",
-    "rts:ExteriorVenetianBlindRTSComponent": "cover",
-    "rts:GarageDoor4TRTSComponent": "switch",
-    "rts:RollerShutterRTSComponent": "cover",
-    "rts:OnOffRTSComponent": "switch",
-    "rts:VenetianBlindRTSComponent": "cover",
-}
 
 
 def setup(hass, config):
@@ -115,7 +83,7 @@ def setup(hass, config):
     password = conf.get(CONF_PASSWORD)
     exclude = conf.get(CONF_EXCLUDE)
     try:
-        api = TahomaApi(username, password)
+        api = PyHoma(username, password)
     except RequestException:
         _LOGGER.exception("Error when trying to log in to the Tahoma API")
         return False
