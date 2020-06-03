@@ -53,7 +53,12 @@ To contribute, run the following python script and PM me on the [Home Assistant 
 
 ```
 import sys
-import tahoma_api
+try:
+    import pyhoma
+except ModuleNotFoundError:
+    import subprocess
+    subprocess.check_call([sys.executable, "-m", "pip", "install", "pyhoma"])
+    import pyhoma
 
 orig_stdout = sys.stdout
 f = open('devices.txt', 'w')
@@ -64,10 +69,31 @@ userName=input()
 print("Input password: ")
 userPassword=input()
 
-api=tahoma_api.TahomaApi(userName=userName,userPassword=userPassword)
+import pyhoma
+api=pyhoma.PyHoma(userName=userName, userPassword=userPassword)
 
 api.login()
 api.get_setup()
+
+devices = api.get_devices()
+
+from pprint import pprint
+for k,v in devices.items():
+    print("****************************************")
+    print("Label: " + v.label)
+    print("controlableName: " + v.type)
+    print("uiClass: " + v.uiclass)
+    print("widget: " + v.widget)
+    print("=== States ===")
+    states = v._Device__states_def
+    for s in states:
+        pprint(s, indent=4, width=20)
+    print(" ")
+    print("=== Commands ===")
+    commands = v._Device__command_def
+    for c in commands:
+        pprint(c, indent=4, width=20)
+    print(" ")
 
 sys.stdout = orig_stdout
 f.close()
