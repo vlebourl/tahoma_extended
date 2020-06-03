@@ -145,6 +145,8 @@ class TahomaDevice(Entity):
         self.tahoma_device = tahoma_device
         self.controller = controller
         self._name = self.tahoma_device.label
+        self._widget = self.tahoma_device.widget
+        self._uiclass = self.tahoma_device.uiclass
 
     @property
     def name(self):
@@ -154,7 +156,12 @@ class TahomaDevice(Entity):
     @property
     def device_state_attributes(self):
         """Return the state attributes of the device."""
-        return {"tahoma_device_id": self.tahoma_device.url}
+        return {
+            "tahoma_label": self._name,
+            "tahoma_widget": self._widget,
+            "tahoma_uiclass": self._uiclass,
+            "tahoma_device_id": self.tahoma_device.url,
+        }
 
     def apply_action(self, cmd_name, *args):
         """Apply Action to Device."""

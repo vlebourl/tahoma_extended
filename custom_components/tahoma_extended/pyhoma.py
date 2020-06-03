@@ -717,12 +717,12 @@ class Device:
 
     @property
     def command_definitions(self):
-        """List of command devinitions."""
+        """List of command definitions."""
         return self.__definitions['commands']
 
     @property
     def state_definitions(self):
-        """State of command devinition."""
+        """List of state definition."""
         return self.__definitions['states']
 
     @property
