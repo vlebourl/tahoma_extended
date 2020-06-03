@@ -322,10 +322,10 @@ class TahomaThermostat(TahomaDevice, ClimateEntity):
             too_cold = self._target_temp - self._cur_temp >= self._cold_tolerance
             too_hot = self._cur_temp - self._target_temp >= self._hot_tolerance
 
-            if too_hot and self._current_hvac_mode == CURRENT_HVAC_HEAT:
+            if too_hot:
                 _LOGGER.info("Turning off heater %s", self.name)
                 await self._async_heater_turn_off()
-            if too_cold and self._current_hvac_mode == CURRENT_HVAC_IDLE:
+            if too_cold:
                 _LOGGER.info("Turning on heater %s", self.name)
                 await self._async_heater_turn_on()
 
