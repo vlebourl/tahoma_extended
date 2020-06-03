@@ -70,9 +70,10 @@ class PyHoma:
         self.__logged_in = True
         return self.__logged_in
 
-    def get_user(self):
+    def get_user(self, retries: int = 3):
         """Get the user informations from the server.
 
+        :param retries: maximum number of retries
         :return: a dict with all the informations
         :rtype: dict
 
@@ -80,16 +81,16 @@ class PyHoma:
 
         :Example:
 
-        >>> "creationTime": <time>,
-        >>> "lastUpdateTime": <time>,
-        >>> "userId": "<email for login>",
-        >>> "title": 0,
-        >>> "firstName": "<First>",
-        >>> "lastName": "<Last>",
-        >>> "email": "<contact email>",
-        >>> "phoneNumber": "<phone>",
-        >>> "mobilePhone": "<mobile>",
-        >>> "locale": "<two char country code>"
+            "creationTime": <time>,
+            "lastUpdateTime": <time>,
+            "userId": "<email for login>",
+            "title": 0,
+            "firstName": "<First>",
+            "lastName": "<Last>",
+            "email": "<contact email>",
+            "phoneNumber": "<phone>",
+            "mobilePhone": "<mobile>",
+            "locale": "<two char country code>"
 
         :Warning:
 
@@ -103,10 +104,13 @@ class PyHoma:
                                timeout=10)
 
         if request.status_code != 200:
-            self.__logged_in = False
-            self.login()
-            self.get_user()
-            return
+            if retries > 0:
+                self.__logged_in = False
+                self.login()
+                self.get_user(retries - 1)
+                return
+            else:
+                raise requests.exceptions.RetryError("Too many retries: error "+str(request.content))
 
         try:
             result = request.json()
@@ -116,7 +120,7 @@ class PyHoma:
 
         return result
 
-    def get_setup(self):
+    def get_setup(self, retries: int = 3):
         """Load the setup from the server.
 
         Loads the configuration from the server, nothing will
@@ -125,6 +129,7 @@ class PyHoma:
         Also location and gateway will be set through this
         method.
 
+        :param retries: maximum number of retries
         raises ValueError in case of protocol issues
 
         :Seealso:
@@ -141,10 +146,13 @@ class PyHoma:
                                headers=header,
                                timeout=10)
         if request.status_code != 200:
-            self.__logged_in = False
-            self.login()
-            self.get_setup()
-            return
+            if retries > 0:
+                self.__logged_in = False
+                self.login()
+                self.get_setup(retries - 1)
+                return
+            else:
+                raise requests.exceptions.RetryError("Too many retries: error "+str(request.content))
 
         try:
             result = request.json()
@@ -160,7 +168,7 @@ class PyHoma:
         """Internal method which process the results from the server."""
         self.__devices = {}
 
-        if ('devices' not in result.keys()):
+        if 'devices' not in result.keys():
             raise Exception(
                 "Did not find device definition.")
 
@@ -181,22 +189,22 @@ class PyHoma:
         :return: a dict with all the informations
         :rtype: dict
         :Example:
-        >>> "creationTime": <time>,
-        >>> "lastUpdateTime": <time>,
-        >>> "addressLine1": "<street>",
-        >>> "postalCode": "<zip>",
-        >>> "city": "<city>",
-        >>> "country": "<country>",
-        >>> "timezone": "Europe/<city>",
-        >>> "longitude": 2.343,
-        >>> "latitude": 48.857,
-        >>> "twilightMode": 2,
-        >>> "twilightCity": "<city>",
-        >>> "summerSolsticeDuskMinutes": 1290,
-        >>> "winterSolsticeDuskMinutes": 990,
-        >>> "twilightOffsetEnabled": False,
-        >>> "dawnOffset": 0,
-        >>> "duskOffset": 0
+            "creationTime": <time>,
+            "lastUpdateTime": <time>,
+            "addressLine1": "<street>",
+            "postalCode": "<zip>",
+            "city": "<city>",
+            "country": "<country>",
+            "timezone": "Europe/<city>",
+            "longitude": 2.343,
+            "latitude": 48.857,
+            "twilightMode": 2,
+            "twilightCity": "<city>",
+            "summerSolsticeDuskMinutes": 1290,
+            "winterSolsticeDuskMinutes": 990,
+            "twilightOffsetEnabled": False,
+            "dawnOffset": 0,
+            "duskOffset": 0
 
         :Warning:
 
@@ -221,22 +229,22 @@ class PyHoma:
 
         :Example:
 
-        >>> [{
-        >>>     "gatewayId": "1234-1234-1234",
-        >>>     "type": 15,
-        >>>     "placeOID": "12345678-1234-1234-1234-12345678",
-        >>>     "alive": True,
-        >>>     "timeReliable": True,
-        >>>     "connectivity": {
-        >>>         "status": "OK",
-        >>>         "protocolVersion": "8"
-        >>>     },
-        >>>     "upToDate": True,
-        >>>     "functions": "INTERNET_AUTHORIZATION,SCENARIO_DOWNLOAD,
+            [{
+                "gatewayId": "1234-1234-1234",
+                "type": 15,
+                "placeOID": "12345678-1234-1234-1234-12345678",
+                "alive": True,
+                "timeReliable": True,
+                "connectivity": {
+                    "status": "OK",
+                    "protocolVersion": "8"
+                },
+                "upToDate": True,
+                "functions": "INTERNET_AUTHORIZATION,SCENARIO_DOWNLOAD,
                 SCENARIO_AUTO_LAUNCHING,SCENARIO_TELECO_LAUNCHING,
                 INTERNET_UPLOAD,INTERNET_UPDATE,TRIGGERS_SENSORS",
-        >>>     "mode": "ACTIVE"
-        >>> }]
+                "mode": "ACTIVE"
+            }]
 
         :Warning:
 
@@ -280,7 +288,7 @@ class PyHoma:
         """
         return self.__devices[url]
 
-    def apply_actions(self, name_of_action, actions):
+    def apply_actions(self, name_of_action, actions, retries: int = 3):
         """Start to execute an action or a group of actions.
 
         This method takes a bunch of actions and runs them on your
@@ -288,6 +296,7 @@ class PyHoma:
 
         :param name_of_action: the label/name for the action
         :param actions: an array of Action objects
+        :param retries: maximum number of retries
         :return: the execution identifier  **************
         what if it fails
         :rtype: string
@@ -318,10 +327,13 @@ class PyHoma:
             timeout=10)
 
         if request.status_code != 200:
-            self.__logged_in = False
-            self.login()
-            self.apply_actions(name_of_action, actions)
-            return
+            if retries > 0:
+                self.__logged_in = False
+                self.login()
+                self.apply_actions(name_of_action, actions, retries - 1)
+                return
+            else:
+                raise requests.exceptions.RetryError("Too many retries: error "+str(request.content))
 
         try:
             result = request.json()
@@ -336,7 +348,7 @@ class PyHoma:
 
         return result['execId']
 
-    def get_events(self):
+    def get_events(self, retries: int = 3):
         """Return a set of events.
 
         Which have been occured since the last call of this method.
@@ -351,6 +363,7 @@ class PyHoma:
         through several phases which can be followed
         - ExecutionStateChangedEvent, ******** todo
 
+        :param retries: maximum number of retries
         :return: an array of Events or empty array
         :rtype: list
 
@@ -380,10 +393,13 @@ class PyHoma:
                                 timeout=10)
 
         if request.status_code != 200:
-            self.__logged_in = False
-            self.login()
-            self.get_events()
-            return
+            if retries > 0:
+                self.__logged_in = False
+                self.login()
+                self.get_events(retries - 1)
+                return
+            else:
+                raise requests.exceptions.RetryError("Too many retries: error "+str(request.content))
 
         try:
             result = request.json()
@@ -417,9 +433,10 @@ class PyHoma:
 
         return events
 
-    def get_current_executions(self):
+    def get_current_executions(self, retries: int = 3):
         """Get all current running executions.
 
+        :param retries: maximum number of retries
         :return: Returns a set of running Executions or empty list.
         :rtype: list
 
@@ -441,10 +458,13 @@ class PyHoma:
             timeout=10)
 
         if request.status_code != 200:
-            self.__logged_in = False
-            self.login()
-            self.get_current_executions()
-            return
+            if retries > 0:
+                self.__logged_in = False
+                self.login()
+                self.get_current_executions(retries - 1)
+                return
+            else:
+                raise requests.exceptions.RetryError("Too many retries: error "+str(request.content))
 
         try:
             result = request.json()
@@ -461,8 +481,12 @@ class PyHoma:
 
         return executions
 
-    def get_history(self):
-        """Get history."""
+    def get_history(self, retries: int = 3):
+        """Get history.
+
+        :param retries: maximum number of retries
+        :return: Returns the history of a device.
+        """
         header = BASE_HEADERS.copy()
         header['Cookie'] = self.__cookie
 
@@ -472,10 +496,13 @@ class PyHoma:
             timeout=10)
 
         if request.status_code != 200:
-            self.__logged_in = False
-            self.login()
-            self.get_history()
-            return
+            if retries > 0:
+                self.__logged_in = False
+                self.login()
+                self.get_history(retries - 1)
+                return
+            else:
+                raise requests.exceptions.RetryError("Too many retries: error "+str(request.content))
 
         try:
             result = request.json()
@@ -486,27 +513,32 @@ class PyHoma:
 
         return result
 
-    def cancel_all_executions(self):
+    def cancel_all_executions(self, retries: int = 3):
         """Cancel all running executions.
 
+        :param retries: maximum number of retries
         raises ValueError in case of any protocol issues.
         """
         header = BASE_HEADERS.copy()
         header['Cookie'] = self.__cookie
 
         request = requests.delete(BASE_URL + 'exec/current/setup',
-                               headers=header,
-                               timeout=10)
+                                  headers=header,
+                                  timeout=10)
 
         if request.status_code != 200:
-            self.__logged_in = False
-            self.login()
-            self.cancel_all_executions()
-            return
+            if retries > 0:
+                self.__logged_in = False
+                self.login()
+                self.cancel_all_executions(retries - 1)
+                return
+            else:
+                raise requests.exceptions.RetryError("Too many retries: error "+str(request.content))
 
-    def get_action_groups(self):
+    def get_action_groups(self, retries: int = 3):
         """Get all Action Groups.
 
+        :param retries: maximum number of retries
         :return: List of Action Groups
         """
         header = BASE_HEADERS.copy()
@@ -517,10 +549,13 @@ class PyHoma:
                                timeout=10)
 
         if request.status_code != 200:
-            self.__logged_in = False
-            self.login()
-            self.get_action_groups()
-            return
+            if retries > 0:
+                self.__logged_in = False
+                self.login()
+                self.get_action_groups(retries - 1)
+                return
+            else:
+                raise requests.exceptions.RetryError("Too many retries: error "+str(request.content))
 
         try:
             result = request.json()
@@ -536,8 +571,11 @@ class PyHoma:
 
         return groups
 
-    def launch_action_group(self, action_id):
-        """Start action group."""
+    def launch_action_group(self, action_id, retries: int = 3):
+        """Start action group.
+
+        :param retries: maximum number of retries
+        """
         header = BASE_HEADERS.copy()
         header['Cookie'] = self.__cookie
 
@@ -547,10 +585,13 @@ class PyHoma:
             timeout=10)
 
         if request.status_code != 200:
-            self.__logged_in = False
-            self.login()
-            self.launch_action_group(action_id)
-            return
+            if retries > 0:
+                self.__logged_in = False
+                self.login()
+                self.launch_action_group(action_id, retries - 1)
+                return
+            else:
+                raise requests.exceptions.RetryError("Too many retries: error "+str(request.content))
 
         try:
             result = request.json()
@@ -591,8 +632,11 @@ class PyHoma:
             except KeyError:
                 pass
 
-    def refresh_all_states(self):
-        """Update all states."""
+    def refresh_all_states(self, retries: int = 3):
+        """Update all states.
+
+        :param retries: maximum number of retries
+        """
         header = BASE_HEADERS.copy()
         header['Cookie'] = self.__cookie
 
@@ -602,10 +646,13 @@ class PyHoma:
             timeout=10)
 
         if request.status_code != 200:
-            self.__logged_in = False
-            self.login()
-            self.refresh_all_states()
-            return
+            if retries > 0:
+                self.__logged_in = False
+                self.login()
+                self.refresh_all_states(retries - 1)
+                return
+            else:
+                raise requests.exceptions.RetryError("Too many retries: error "+str(request.content))
 
 
 class Device:
@@ -717,12 +764,12 @@ class Device:
 
     @property
     def command_definitions(self):
-        """List of command definitions."""
+        """List of command devinitions."""
         return self.__definitions['commands']
 
     @property
     def state_definitions(self):
-        """List of state definition."""
+        """State of command devinition."""
         return self.__definitions['states']
 
     @property

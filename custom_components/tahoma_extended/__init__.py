@@ -163,9 +163,10 @@ class TahomaDevice(Entity):
             "tahoma_device_id": self.tahoma_device.url,
         }
 
-    def apply_action(self, cmd_name, *args):
+    def apply_action(self, commands):
         """Apply Action to Device."""
 
         action = Action(self.tahoma_device.url)
-        action.add_command(cmd_name, *args)
+        for command in commands:
+            action.add_command(*command)
         self.controller.apply_actions("HomeAssistant", [action])

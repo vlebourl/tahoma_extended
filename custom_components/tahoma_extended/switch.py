@@ -72,7 +72,7 @@ class TahomaSwitch(TahomaDevice, SwitchEntity):
         if self.tahoma_device.type == "rts:GarageDoor4TRTSComponent":
             self.toggle()
         else:
-            self.apply_action("on")
+            self.apply_action([["on"]])
             self._skip_update = True
             self._state = STATE_ON
 
@@ -82,13 +82,13 @@ class TahomaSwitch(TahomaDevice, SwitchEntity):
         if self.tahoma_device.type == "rts:GarageDoor4TRTSComponent":
             return
 
-        self.apply_action("off")
+        self.apply_action([["off"]])
         self._skip_update = True
         self._state = STATE_OFF
 
     def toggle(self, **kwargs):
         """Click the switch."""
-        self.apply_action("cycle")
+        self.apply_action([["cycle"]])
 
     @property
     def is_on(self):

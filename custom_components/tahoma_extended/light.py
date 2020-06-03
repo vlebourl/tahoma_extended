@@ -78,13 +78,13 @@ class TahomaLight(TahomaDevice, LightEntity):
 
         if ATTR_BRIGHTNESS in kwargs:
             self._brightness = int(float(kwargs[ATTR_BRIGHTNESS]) / 255 * 100)
-            self.apply_action("setIntensity", self._brightness)
+            self.apply_action([["setIntensity", self._brightness]])
         elif  ATTR_EFFECT in kwargs:
             self._effect = kwargs[ATTR_EFFECT]
-            self.apply_action("wink", 100)
+            self.apply_action([["wink", 100]])
         else:
             self._brightness = 100
-            self.apply_action("on")
+            self.apply_action([["on"]])
         
 
         self.async_write_ha_state()
@@ -94,7 +94,7 @@ class TahomaLight(TahomaDevice, LightEntity):
         _LOGGER.debug("[THM] Called to turn off")
         self._state = False
         self._skip_update = True
-        self.apply_action("off")
+        self.apply_action([["off"]])
 
         self.async_write_ha_state()
 

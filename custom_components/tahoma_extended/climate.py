@@ -216,10 +216,7 @@ class TahomaThermostat(TahomaDevice, ClimateEntity):
 
     @property
     def hvac_action(self):
-        """Return the current running hvac operation if supported.
-
-        Need to be one of CURRENT_HVAC_*.
-        """
+        """Return the current running hvac operation if supported."""
         return self._current_hvac_mode
 
     @property
@@ -342,16 +339,15 @@ class TahomaThermostat(TahomaDevice, ClimateEntity):
             target_temperature = 16
         if self.tahoma_device.active_states['core:DerogatedTargetTemperatureState'] != target_temperature:
             from time import sleep
-            self.apply_action("refreshState")
-            self.apply_action("setModeTemperature", "manualMode", target_temperature)
-            self.apply_action("setDerogation", target_temperature, "further_notice")
-            self.apply_action("refreshState")
+            self.apply_action([["setModeTemperature", "manualMode", target_temperature],
+                               ["setDerogation", target_temperature, "further_notice"],
+                               ["refreshState"]])
             sleep(20)
 
     async def _async_heater_turn_on(self):
         """Turn heater toggleable device on."""
         if self._type == "io":
-            self.apply_action("setHeatingLevel", "comfort")
+            self.apply_action([["setHeatingLevel", "comfort"]])
         elif self._type == "thermostat":
             self._apply_action(self.target_temperature)
         self._current_hvac_mode = CURRENT_HVAC_HEAT
@@ -362,7 +358,7 @@ class TahomaThermostat(TahomaDevice, ClimateEntity):
     async def _async_heater_turn_off(self):
         """Turn heater toggleable device off."""
         if self._type == "io":
-            self.apply_action("setHeatingLevel", "off")
+            self.apply_action([["setHeatingLevel", "off"]])
         elif self._type == "thermostat":
             self._apply_action(self.target_temperature)
         self._current_hvac_mode = CURRENT_HVAC_IDLE
@@ -393,10 +389,6 @@ class TahomaThermostat(TahomaDevice, ClimateEntity):
         if temperature is None:
             return
         self._target_temp = temperature
-        # if self._type == "thermostat":
-        #     self.apply_action(
-        #         "setModeTemperature", "manualMode", self.target_temperature
-        #     )
         await self._async_control_heating()
         # self.update()
 
