@@ -60,14 +60,14 @@ except ModuleNotFoundError:
     subprocess.check_call([sys.executable, "-m", "pip", "install", "pyhoma"])
     import pyhoma
 
-orig_stdout = sys.stdout
-f = open('devices.txt', 'w')
-sys.stdout = f
-
 print("Input login: ")
 userName=input()
 print("Input password: ")
 userPassword=input()
+
+orig_stdout = sys.stdout
+f = open('devices.txt', 'w')
+sys.stdout = f
 
 import pyhoma
 api=pyhoma.PyHoma(userName=userName, userPassword=userPassword)
