@@ -1,3 +1,6 @@
+*WARNING* This component isn't maintained anymore. A new component is under development to improve the tahoma integration: 
+https://github.com/iMicknl/ha-tahoma
+
 # tahoma_extended
 
 [![hacs_badge](https://img.shields.io/badge/HACS-Custom-orange.svg)](https://github.com/custom-components/hacs)
